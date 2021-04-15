@@ -1,19 +1,29 @@
 import React, { useState, memo, useRef, useEffect } from 'react';
 import Words from './words/Words';
+import GameOver from './gameover/GameOver';
 import * as s from './style';
 
 const blank_pattern = /[\s]/g;
+const korea_pattern = /[a-z0-9]|[ \[\]{}()<>?|`~!@#$%^&*-_+=,.;:\"'\\]/g;
 
 const word = new Array('개나리', '복숭아', '사과', '바나나', '딸기');
+let timer = 0;
 
 const Main = memo(() => {
-  const [baseWord, setBaseWord] = useState(word[Math.floor(Math.random()*word.length)]);
+  const [baseWord, setBaseWord] = useState('');
   const [userWord, setUserWord] = useState('');
   const [message, setMessage] = useState('');
   const [gameOver, setGameOver] = useState(false);
   const [words, setWords] = useState([]);
   const fontAnim = useRef(null);
   const gameTimer = useRef(null);
+
+  const gameStart = () => {
+    setBaseWord(word[Math.floor(Math.random()*word.length)]);
+    timer = 0;
+    setGameOver(false);
+    clearInterval(gameTimer.current);
+  }
 
   const onChangeInput = (e) => {
     setUserWord(e.target.value);
@@ -35,26 +45,17 @@ const Main = memo(() => {
       setBaseWord(userWord);
     }
     else {
-      alert("실패!");
       setGameOver(true);
     }
   }
 
   useEffect(() => {
-    let timer = 0;
-
-    fontAnim.current.style.fontSize = `${20}vmin`;
-
-    clearInterval(gameTimer.current);
-
-    gameTimer.current = setInterval( ()=> {
+    gameTimer.current = setInterval(()=> {
       if(!fontAnim.current){
         return;
       }
 
       if((20-timer) <= 0) {
-        setMessage('타임오버!');
-        clearInterval(gameTimer.current);
         setGameOver(true);
       }
 
@@ -64,17 +65,31 @@ const Main = memo(() => {
 
   }, [baseWord]);
 
+  const onClickWhiteBox = () => {
+    gameStart();
+  }
+
+  useEffect(() => {
+    if(gameOver) {
+      clearInterval(gameTimer.current);
+      setUserWord('');
+    }
+    else{
+      gameStart();
+    }
+  }, [gameOver]);
+
   return(
     <>
       {gameOver ? <div>
-        <s.WhiteBox></s.WhiteBox>
-        
+        <s.WhiteBox onClick = {onClickWhiteBox}></s.WhiteBox>
+        <GameOver gameStart={gameStart} wordCnt = {words.length}></GameOver>
       </div> : null}
       <s.FirstWord ref={fontAnim}>{baseWord}</s.FirstWord>
       <div>
         {words.map((v, i) => {
           return(
-            <Words key={i} words = {i==words.length-1?v : v+' -> '}></Words>
+            <Words key={i} words = {i==words.length-1 ? v : v +' -> '}></Words>
           );
         })}
       </div>
