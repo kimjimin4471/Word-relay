@@ -3,7 +3,6 @@ import Words from './words/Words';
 import GameOver from './gameover/GameOver';
 import * as s from './style';
 
-const blank_pattern = /[\s]/g;
 const korea_pattern = /[a-z0-9]|[ \[\]{}()<>?|`~!@#$%^&*-_+=,.;:\"'\\]/g;
 
 const word = new Array('개나리', '복숭아', '사과', '바나나', '딸기');
@@ -26,16 +25,12 @@ const Main = memo(() => {
   }
 
   const onChangeInput = (e) => {
-    setUserWord(e.target.value);
+    setUserWord(e.target.value.replace(korea_pattern, ''));
   };
 
   const onSubmitWord = (e) => {
     e.preventDefault();
-    if(blank_pattern.test(userWord) == true){
-      setMessage('공백 입력!!');
-      setUserWord('');
-      return;
-    }
+
     if(userWord[0] == baseWord[baseWord.length-1]){
       setUserWord('');
       setWords([
@@ -57,6 +52,7 @@ const Main = memo(() => {
 
       if((20-timer) <= 0) {
         setGameOver(true);
+        setMessage('시간 초과!');
       }
 
       timer += 1;
