@@ -17,7 +17,7 @@ export const Container = styled.div`
     color: black;
     text-align: center;
     font-size: 60px;
-    margin-top: 30px;
+    margin-top: 20px;
     margin-bottom: 40px;
   }
 

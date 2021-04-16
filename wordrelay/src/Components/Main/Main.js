@@ -16,12 +16,17 @@ const Main = memo(() => {
   const [words, setWords] = useState([]);
   const fontAnim = useRef(null);
   const gameTimer = useRef(null);
+  const textInput = useRef(null);
 
   const gameStart = () => {
+    setWords([]);
     setBaseWord(word[Math.floor(Math.random()*word.length)]);
     timer = 0;
     setGameOver(false);
+    setMessage('');
     clearInterval(gameTimer.current);
+    textInput.current.focus();
+    textInput.current.readOnly=false;
   }
 
   const onChangeInput = (e) => {
@@ -30,6 +35,15 @@ const Main = memo(() => {
 
   const onSubmitWord = (e) => {
     e.preventDefault();
+
+    if(userWord == '') {
+      return;
+    }
+    if(words.indexOf(userWord) != -1) {
+      setGameOver(true);
+      setMessage('똑같은 단어 입력!');
+      return;
+    }
 
     if(userWord[0] == baseWord[baseWord.length-1]){
       setUserWord('');
@@ -41,10 +55,14 @@ const Main = memo(() => {
     }
     else {
       setGameOver(true);
+      setMessage(`'${baseWord[baseWord.length-1]}'로 시작하지 않습니다!`);
+      return;
     }
   }
 
   useEffect(() => {
+    clearInterval(gameTimer.current);
+
     gameTimer.current = setInterval(()=> {
       if(!fontAnim.current){
         return;
@@ -69,6 +87,7 @@ const Main = memo(() => {
     if(gameOver) {
       clearInterval(gameTimer.current);
       setUserWord('');
+      textInput.current.readOnly= true;
     }
     else{
       gameStart();
@@ -79,7 +98,7 @@ const Main = memo(() => {
     <>
       {gameOver ? <div>
         <s.WhiteBox onClick = {onClickWhiteBox}></s.WhiteBox>
-        <GameOver gameStart={gameStart} wordCnt = {words.length}></GameOver>
+        <GameOver gameStart={gameStart} wordCnt = {words.length} message={message}></GameOver>
       </div> : null}
       <s.FirstWord ref={fontAnim}>{baseWord}</s.FirstWord>
       <div>
@@ -89,9 +108,8 @@ const Main = memo(() => {
           );
         })}
       </div>
-      <s.WrongAnswer>{message}</s.WrongAnswer>
       <form onSubmit={onSubmitWord}>
-        <s.UserWordInput onChange={onChangeInput} value={userWord}></s.UserWordInput>
+        <s.UserWordInput ref={textInput} onChange={onChangeInput} value={userWord}></s.UserWordInput>
       </form>
     </>
   );

@@ -7,10 +7,6 @@ export const FirstWord = styled.p`
   transition: 2s;
 `
 
-export const WrongAnswer = styled.p`
-  color: red;
-`
-
 export const UserWordInput = styled.input`
   text-align: center;
 `

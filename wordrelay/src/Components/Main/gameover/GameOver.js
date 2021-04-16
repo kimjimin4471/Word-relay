@@ -10,6 +10,7 @@ const GameOver = (props) => {
   return(
     <s.Container>
       <h1>GameOver!</h1>
+      <p>{props.message}</p>
       <p>입력한 단어의 수 : {props.wordCnt}개</p>
       <s.CheckBtn onClick={onClickCheck}>확인</s.CheckBtn>
     </s.Container>
